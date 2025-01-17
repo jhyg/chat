@@ -16,7 +16,10 @@ public class ChatDashboard {
         @Id
         //@GeneratedValue(strategy=GenerationType.AUTO)
         private String roomId;
-        private List&lt;String&gt; participants;
+
+        @ElementCollection
+        private List<String> participants;
+        
         private Date lastMessageTime;
         private String content;
         private Long timestamp;

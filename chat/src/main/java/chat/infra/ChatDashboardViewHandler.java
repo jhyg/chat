@@ -5,6 +5,7 @@ import chat.domain.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -68,12 +69,12 @@ public class ChatDashboardViewHandler {
             // view 객체 조회
 
             List<ChatDashboard> chatDashboardList = chatDashboardRepository.findByLastMessageTime(
-                messageSent.getTimestamp()
+                new Date(messageSent.getTimestamp())
             );
             for (ChatDashboard chatDashboard : chatDashboardList) {
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
                 chatDashboard.setRoomId(messageSent.getRoomId());
-                chatDashboard.setLastMessageTime(messageSent.getTimestamp());
+                chatDashboard.setLastMessageTime(new Date(messageSent.getTimestamp()));
                 chatDashboard.setMessageId(messageSent.getMessageId());
                 chatDashboard.setSenderId(messageSent.getSenderId());
                 chatDashboard.setContent(messageSent.getContent());
@@ -85,31 +86,31 @@ public class ChatDashboardViewHandler {
         }
     }
 
-    @StreamListener(KafkaProcessor.INPUT)
-    public void whenChatRoomUpdated_then_UPDATE_2(
-        @Payload ChatRoomUpdated chatRoomUpdated
-    ) {
-        try {
-            if (!chatRoomUpdated.validate()) return;
-            // view 객체 조회
+    // @StreamListener(KafkaProcessor.INPUT)
+    // public void whenChatRoomUpdated_then_UPDATE_2(
+    //     @Payload ChatRoomUpdated chatRoomUpdated
+    // ) {
+    //     try {
+    //         if (!chatRoomUpdated.validate()) return;
+    //         // view 객체 조회
 
-            List<ChatDashboard> chatDashboardList = chatDashboardRepository.findByParticipants(
-                chatRoomUpdated.getParticipants()
-            );
-            for (ChatDashboard chatDashboard : chatDashboardList) {
-                // view 객체에 이벤트의 eventDirectValue 를 set 함
-                chatDashboard.setRoomId(chatRoomUpdated.getRoomId());
-                chatDashboard.setParticipants(
-                    chatRoomUpdated.getParticipants()
-                );
-                chatDashboard.setRoomName(chatRoomUpdated.getRoomName());
-                // view 레파지 토리에 save
-                chatDashboardRepository.save(chatDashboard);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    //         List<ChatDashboard> chatDashboardList = chatDashboardRepository.findByParticipants(
+    //             chatRoomUpdated.getParticipants()
+    //         );
+    //         for (ChatDashboard chatDashboard : chatDashboardList) {
+    //             // view 객체에 이벤트의 eventDirectValue 를 set 함
+    //             chatDashboard.setRoomId(chatRoomUpdated.getRoomId());
+    //             chatDashboard.setParticipants(
+    //                 chatRoomUpdated.getParticipants()
+    //             );
+    //             chatDashboard.setRoomName(chatRoomUpdated.getRoomName());
+    //             // view 레파지 토리에 save
+    //             chatDashboardRepository.save(chatDashboard);
+    //         }
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
     @StreamListener(KafkaProcessor.INPUT)
     public void whenChatRoomDeleted_then_DELETE_1(
